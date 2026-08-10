@@ -412,6 +412,7 @@
             try {
                 const response = await fetch(SCRIPT_URL, {
                     method: "POST",
+                    redirect: "follow",
                     body: JSON.stringify({ action: "search", name: name })
                 });
                 const result = await response.json();
