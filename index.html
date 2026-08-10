@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจองบัตรคอนเสิร์ต - Neon Blue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050b14;
+            --card-bg: rgba(10, 15, 29, 0.7);
+            --neon-blue: #00f0ff;
+            --neon-glow: 0 0 15px rgba(0, 240, 255, 0.4);
+            --text-color: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 10%, #0c1b33 0%, var(--bg-color) 80%);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            box-shadow: var(--neon-glow);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--neon-blue);
+            margin-bottom: 25px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(5, 11, 20, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--neon-blue);
+            box-shadow: var(--neon-glow);
+        }
+
+        .file-upload {
+            border: 2px dashed rgba(0, 240, 255, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .file-upload:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .checkbox-group input {
+            accent-color: var(--neon-blue);
+            width: 18px;
+            height: 18px;
+        }
+
+        button.btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00f0ff, #0077ff);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: var(--neon-glow);
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button.btn-submit:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        #fileName {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--neon-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>✨ ระบบจองบัตรคอนเสิร์ต ✨</h2>
+        <form id="bookingForm" onsubmit="submitForm(event)">
+            
+            <div class="form-group">
+                <label>ชื่อ - นามสกุล</label>
+                <input type="text" id="name" required placeholder="กรอกชื่อของคุณ">
+            </div>
+
+            <div class="form-group">
+                <label>เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" required placeholder="08xxxxxxxx">
+            </div>
+
+            <div class="form-group">
+                <label>เลือกโซนที่นั่ง</label>
+                <select id="zone" required onchange="updateTables()">
+                    <option value="">-- กรุณาเลือกโซน --</option>
+                    <option value="VVIP">VVIP</option>
+                    <option value="ZONE VIP">ZONE VIP</option>
+                    <option value="ZONE A">ZONE A</option>
+                    <option value="ZONE B">ZONE B</option>
+                    <option value="ZONE C-D">ZONE C-D</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>เลือกหมายเลขโต๊ะ</label>
+                <select id="tableNo" required>
+                    <option value="">-- กรุณาเลือกโซนก่อน --</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>อัปโหลดสลิปโอนเงิน</label>
+                <div class="file-upload" onclick="document.getElementById('slipFile').click()">
+                    <span>📎 คลิกเพื่อเลือกรูปสลิป</span>
+                    <input type="file" id="slipFile" accept="image/*" style="display:none" onchange="showFileName()">
+                    <div id="fileName">ยังไม่ได้เลือกไฟล์</div>
+                </div>
+                
+                <label class="checkbox-group">
+                    <input type="checkbox" id="lineSlip" onchange="toggleSlipRequirement()">
+                    โอนเงินแล้ว แต่ขอส่งสลิปทาง LINE แทน (กรณีแนบไฟล์ไม่เป็น)
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit">ยืนยันการจองบัตร</button>
+        </form>
+    </div>
+
+    <script>
+        // กำหนดรายการโต๊ะตามโซนที่เลือก
+        const tableOptions = {
+            "VVIP": ["V1", "V2", "V3"],
+            "ZONE VIP": ["VIP1", "VIP2", "VIP3", "VIP4"],
+            "ZONE A": ["A1", "A2", "A3", "A4", "A5"],
+            "ZONE B": ["B1", "B2", "B3", "B4", "B5"],
+            "ZONE C-D": ["C1", "C2", "D1", "D2"]
+        };
+
+        function updateTables() {
+            const zoneSelect = document.getElementById("zone");
+            const tableSelect = document.getElementById("tableNo");
+            const selectedZone = zoneSelect.value;
+
+            tableSelect.innerHTML = '<option value="">-- เลือกหมายเลขโต๊ะ --</option>';
+
+            if (selectedZone && tableOptions[selectedZone]) {
+                tableOptions[selectedZone].forEach(table => {
+                    let opt = document.createElement("option");
+                    opt.value = table;
+                    opt.textContent = "โต๊ะ " + table;
+                    tableSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function showFileName() {
+            const fileInput = document.getElementById("slipFile");
+            const fileNameDiv = document.getElementById("fileName");
+            if (fileInput.files.length > 0) {
+                fileNameDiv.textContent = "📄 " + fileInput.files[0].name;
+            }
+        }
+
+        function toggleSlipRequirement() {
+            const isLine = document.getElementById("lineSlip").checked;
+            const fileInput = document.getElementById("slipFile");
+            if (isLine) {
+                fileInput.value = "";
+                document.getElementById("fileName").textContent = "ส่งสลิปผ่าน LINE แล้ว";
+            } else {
+                document.getElementById("fileName").textContent = "ยังไม่ได้เลือกไฟล์";
+            }
+        }
+
+        async function submitForm(e) {
+            e.preventDefault();
+            
+            const SCRIPT_URL = "ใส่_WEB_APP_URL_ของคุณตรงนี้"; // นำ Web App URL จาก Apps Script มาวางแทนที่ข้อความนี้
+
+            const name = document.getElementById("name").value;
+            const phone = document.getElementById("phone").value;
+            const zone = document.getElementById("zone").value;
+            const tableNo = document.getElementById("tableNo").value;
+            const isLine = document.getElementById("lineSlip").checked;
+            const fileInput = document.getElementById("slipFile");
+
+            if (!isLine && fileInput.files.length === 0) {
+                alert("กรุณาแนบสลิป หรือเลือกติ๊กช่องส่งสลิปทาง LINE ครับ");
+                return;
+            }
+
+            let slipBase64 = "";
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                slipBase64 = await toBase64(file);
+            }
+
+            const payload = {
+                action: "bookTicket",
+                bookingId: "B-" + Math.floor(1000 + Math.random() * 9000),
+                name: name,
+                phone: phone,
+                tableNo: zone + " (" + tableNo + ")",
+                tickets: ["ตั๋วใบที่ 1", "ตั๋วใบที่ 2", "ตั๋วใบที่ 3", "ตั๋วใบที่ 4"],
+                slipImage: slipBase64
+            };
+
+            alert("กำลังส่งข้อมูล...");
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.status === "success") {
+                    alert("🎉 จองบัตรสำเร็จเรียบร้อย!");
+                    document.getElementById("bookingForm").reset();
+                    document.getElementById("fileName").textContent = "ยังไม่ได้เลือกไฟล์";
+                } else {
+                    alert("❌ เกิดข้อผิดพลาด: " + result.message);
+                }
+            } catch (err) {
+                alert("❌ ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+            }
+        }
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+        });
+    </script>
+</body>
+</html>
