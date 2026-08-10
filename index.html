@@ -225,10 +225,12 @@
                     <label>เลือกโซนที่นั่งและราคา</label>
                     <select id="zone" required onchange="updateSelectionType()">
                         <option value="">-- กรุณาเลือกโซน --</option>
-                        <option value="ZONE VIP">ZONE VIP - โต๊ะละ 4 ใบ (3,500 บาท)</option>
-                        <option value="ZONE A">ZONE A - โต๊ะละ 4 ใบ (2,500 บาท)</option>
-                        <option value="ZONE B">ZONE B - โต๊ะละ 4 ใบ (1,800 บาท)</option>
-                        <option value="ZONE C-D">ZONE C-D - โซนยืน (1,200 บาท/ใบ)</option>
+                        <option value="ZONE VIP">ZONE VIP - โต๊ะละ 4 ใบ (3,999 บาท)</option>
+                        <option value="ZONE A">ZONE A - โต๊ะละ 4 ใบ (2,800 บาท)</option>
+                        <option value="ZONE B">ZONE B - โต๊ะละ 4 ใบ (2,600 บาท)</option>
+                        <option value="ZONE C">ZONE C - โต๊ะละ 4 ใบ (2,600 บาท/ใบ)</option>
+                         <option value="ZONE D">ZONE D - โต๊ะละ 4 ใบ  (2,400 บาท/ใบ)</option>
+                         <option value="โซนยืน">โซนยืน - (399 บาท/ใบ)</option>
                     </select>
                 </div>
                 <div class="form-group" id="dynamicFieldGroup">
@@ -301,10 +303,13 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzakBToQxQSjJgq_yKnpByF3gWbUPJV7xR4_w3vk2eqUpyjSVFU6HtieBkEn2iNSn8FEA/exec"; // นำ Web App URL มาใส่ตรงนี้
 
         const tableOptions = {
-            "ZONE VIP": ["VIP1", "VIP2", "VIP3", "VIP4"],
-            "ZONE A": ["A1", "A2", "A3", "A4", "A5"],
-            "ZONE B": ["B1", "B2", "B3", "B4", "B5"]
-        };
+    "ZONE VIP": Array.from({length: 30}, (_, i) => "VIP" + (i + 1)),
+    "ZONE A": Array.from({length: 40}, (_, i) => "A" + (i + 1)),
+    "ZONE B": Array.from({length: 40}, (_, i) => "B" + (i + 1)),
+    "ZONE C": Array.from({length: 40}, (_, i) => "C" + (i + 1)),
+    "ZONE D": Array.from({length: 50}, (_, i) => "D" + (i + 1)),
+    "โซนยืน": ["โซนยืน"]
+};
 
         let cdTicketCount = 1; // ค่าเริ่มต้นจำนวนบัตรโซนยืน
 
@@ -331,7 +336,7 @@
             dynamicFieldGroup.innerHTML = '';
             let newControl = '';
 
-            if (zoneSelect === "ZONE C-D") {
+            if (zoneSelect === "โซนยืน") {
                 cdTicketCount = 1; // รีเซ็ตเป็น 1 ใบเมื่อเปลี่ยนมาเลือกโซนนี้
                 newControl = `<label id="dynamicLabel">เลือกจำนวนบัตรโซนยืน</label>
                               <div class="counter-box">
@@ -347,7 +352,7 @@
             }
             dynamicFieldGroup.innerHTML = newControl;
 
-            if (zoneSelect && zoneSelect !== "ZONE C-D" && tableOptions[zoneSelect]) {
+            if (zoneSelect && zoneSelect !== "โซนยืน" && tableOptions[zoneSelect]) {
                 const tableSelect = document.getElementById("tableNo");
                 tableOptions[zoneSelect].forEach(table => {
                     let opt = document.createElement("option");
@@ -407,10 +412,10 @@
             }
 
             const bookingId = "TICKET-" + Math.floor(1000 + Math.random() * 9000);
-            const selectionDetail = zone === "ZONE C-D" ? "โซนยืน (" + tableNoVal + ")" : zone + " (โต๊ะ " + tableNoVal + ")";
+            const selectionDetail = zone === "โซนยืน" ? "โซนยืน (" + tableNoVal + ")" : zone + " (โต๊ะ " + tableNoVal + ")";
 
             let ticketsArr = [];
-            if (zone === "ZONE C-D") {
+            if (zone === "โซนยืน") {
                 for (let i = 1; i <= cdTicketCount; i++) {
                     ticketsArr.push(bookingId + "-CD" + i);
                 }
