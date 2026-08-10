@@ -283,9 +283,10 @@
         <div id="searchTab" class="tab-content">
             <h2>🔍 ตรวจสอบตั๋วและ QR Code</h2>
             <div class="form-group">
-                <label>กรอกชื่อ - นามสกุลของคุณ</label>
-                <input type="text" id="searchName" placeholder="ระบุชื่อที่ใช้จอง">
-            </div>
+                <label>เบอร์โทรศัพท์</label>
+                <input type="tel" id="searchName" placeholder="เช่น 854217894">
+                <small style="color: #ffcc00; display: block; margin-top: 5px;">*กรอกเบอร์โทรศัพท์ ไม่ต้องใส่เลข 0 ด้านหน้า</small>
+</div>
             <button type="button" class="btn-submit" onclick="searchTicket()">ค้นหาข้อมูลตั๋ว</button>
             
             <div id="searchResult" class="result-box">
