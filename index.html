@@ -402,16 +402,17 @@
             }
 
             let tableNoVal = "";
-            if (zone === "ZONE C-D") {
-                tableNoVal = cdTicketCount + " ใบ";
-            } else {
-                tableNoVal = document.getElementById("tableNo").value;
-                if (!tableNoVal) {
-                    alert("กรุณาเลือกหมายเลขโต๊ะครับ");
-                    return;
-                }
-            }
-
+    if (zone === "โซนยืน") {
+        tableNoVal = cdTicketCount + " ใบ"; // สำหรับโซนยืนที่ใช้บวกลบ
+    } else {
+        // สำหรับโซนอื่นๆ ที่เลือกโต๊ะ (VIP, A, B, C, D)
+        const tableElement = document.getElementById("tableNo"); 
+        tableNoVal = tableElement ? tableElement.value : "";
+        if (!tableNoVal) {
+            alert("กรุณาเลือกหมายเลขโต๊ะครับ");
+            return;
+        }
+    }
             const bookingId = "TICKET-" + Math.floor(1000 + Math.random() * 9000);
             const selectionDetail = zone === "โซนยืน" ? "โซนยืน (" + tableNoVal + ")" : zone + " (โต๊ะ " + tableNoVal + ")";
 
