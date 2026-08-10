@@ -111,17 +111,19 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymait7AFNpIbBSuulJ8wMjzdf-KeAHEveN5IMiCNhvoDDtpEnETjNZttIW5xnfmavN5Q/exec"; // นำ Web App URL มาใส่ตรงนี้
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5hTjV96yWd_9jLz0m6T5U5f5r5v5q5s5t5u5v5w5x5y5z/exec"; // ใส่ลิงก์ Web App ของคุณตรงนี้
 
         let isScanning = true;
+        let lastScannedText = ""; // ตัวแปรเก็บค่าล่าสุดเพื่อป้องกันการสแกนซ้ำซ้อนในเสี้ยววินาที
 
         const html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start(
             { facingMode: "environment" },
             { fps: 10, qrbox: { width: 250, height: 250 } },
             (decodedText) => {
-                if (isScanning) {
+                if (isScanning && decodedText !== lastScannedText) {
                     isScanning = false;
+                    lastScannedText = decodedText;
                     processCheckIn(decodedText);
                 }
             },
@@ -142,7 +144,8 @@
 
         function resetScanner() {
             document.getElementById("scanResult").style.display = "none";
-            isScanning = true; // เปิดให้กล้องกลับมาสแกนใบถัดไปได้ทันที
+            lastScannedText = ""; // เคลียร์ความจำภาพเก่าออก เพื่อให้สแกน QR เดิมหรือใบใหม่ต่อได้ทันที
+            isScanning = true;    // เปิดระบบสแกนต่อ
         }
 
         async function processCheckIn(rawText) {
