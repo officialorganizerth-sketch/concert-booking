@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสแกนตั๋วหน้างานคอนเสิร์ต (Anti-Duplication)</title>
+    <title>ระบบสแกนตั๋วหน้างานคอนเสิร์ต</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <style>
@@ -39,12 +39,7 @@
             padding: 25px;
             text-align: center;
         }
-        h2 {
-            color: var(--neon-blue);
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-            font-size: 1.3rem;
-        }
+        h2 { color: var(--neon-blue); margin-bottom: 20px; font-size: 1.3rem; }
         #reader {
             width: 100%;
             border-radius: 12px;
@@ -88,13 +83,13 @@
         }
         .result-box.success { border-color: var(--neon-green); background: rgba(0, 255, 102, 0.08); }
         .result-box.error { border-color: var(--neon-red); background: rgba(255, 51, 51, 0.08); }
-        .result-box p { margin-bottom: 8px; font-size: 0.95rem; }
+        .result-box p { margin-bottom: 6px; font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>📷 สแกนตั๋วหน้างาน (ป้องการสแกนซ้ำ)</h2>
+        <h2>📷 สแกนตั๋วหน้างานคอนเสิร์ต</h2>
         
         <div id="reader"></div>
 
@@ -109,8 +104,9 @@
             <p style="text-align: center; font-weight: 600; font-size: 1.1rem;" id="resStatus">สถานะ</p>
             <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">
             <p><strong>ชื่อผู้จอง:</strong> <span id="resName"></span></p>
-            <p><strong>รายละเอียดโซน/โต๊ะ:</strong> <span id="resTable"></span></p>
-            <p><strong>รหัสตั๋วใบนี้:</strong> <span id="resTicketCode"></span></p>
+            <p><strong>โซน/โต๊ะ:</strong> <span id="resTable"></span></p>
+            <p><strong>รหัสตั๋ว:</strong> <span id="resTicketCode"></span></p>
+            <button type="button" class="btn-action" style="margin-top: 10px; background: rgba(255,255,255,0.1); color: #fff; font-size: 0.9rem; padding: 8px;" onclick="resetScanner()">สแกนใบถัดไป</button>
         </div>
     </div>
 
@@ -125,9 +121,8 @@
             { fps: 10, qrbox: { width: 250, height: 250 } },
             (decodedText) => {
                 if (isScanning) {
-                    isScanning = false; // ป้องกันการยิงซ้ำรัวๆ ขณะกล้องสแกนโดน
+                    isScanning = false;
                     processCheckIn(decodedText);
-                    setTimeout(() => { isScanning = true; }, 3000); // หน่วงเวลา 3 วินาทีก่อนสแกนใบถัดไป
                 }
             },
             (errorMessage) => {}
@@ -142,11 +137,16 @@
                 return;
             }
             processCheckIn(query);
+            document.getElementById("manualInput").value = "";
+        }
+
+        function resetScanner() {
+            document.getElementById("scanResult").style.display = "none";
+            isScanning = true; // เปิดให้กล้องกลับมาสแกนใบถัดไปได้ทันที
         }
 
         async function processCheckIn(rawText) {
             let targetTicket = rawText;
-            // แยกดึงเฉพาะรหัสตั๋วจาก QR Code ที่รูปแบบ: TICKET: TICKET-XXXX-1 | Name: ...
             if (rawText.indexOf("TICKET:") > -1) {
                 let parts = rawText.split("|");
                 for (let p of parts) {
@@ -174,7 +174,6 @@
                 document.getElementById("resTicketCode").textContent = result.ticketCode || targetTicket;
 
                 if (result.status === "success") {
-                    document.getElementById("resStatus-text")
                     document.getElementById("resStatus").textContent = result.message;
                     resBox.className = "result-box success";
                 } else if (result.status === "already_used") {
