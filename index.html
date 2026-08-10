@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบจองและตรวจสอบบัตรคอนเสิร์ต</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- โหลดไลบรารีสำหรับสร้าง QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --bg-color: #050b14;
@@ -14,14 +16,7 @@
             --text-color: #ffffff;
             --text-muted: #94a3b8;
         }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Prompt', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
         body {
             background-color: var(--bg-color);
             background-image: radial-gradient(circle at 50% 10%, #0c1b33 0%, var(--bg-color) 80%);
@@ -32,7 +27,6 @@
             align-items: center;
             padding: 20px;
         }
-
         .container {
             width: 100%;
             max-width: 480px;
@@ -43,7 +37,6 @@
             border-radius: 20px;
             padding: 25px;
         }
-
         .nav-tabs {
             display: flex;
             gap: 5px;
@@ -52,7 +45,6 @@
             padding: 5px;
             border-radius: 12px;
         }
-
         .tab-btn {
             flex: 1;
             padding: 8px 5px;
@@ -66,21 +58,13 @@
             transition: 0.3s;
             text-align: center;
         }
-
         .tab-btn.active {
             background: var(--neon-blue);
             color: #000;
             box-shadow: var(--neon-glow);
         }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         h2 {
             text-align: center;
             color: var(--neon-blue);
@@ -88,21 +72,9 @@
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
             font-size: 1.3rem;
         }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        input[type="text"],
-        input[type="tel"],
-        select {
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.9rem; }
+        input[type="text"], input[type="tel"], select {
             width: 100%;
             padding: 12px 15px;
             background: rgba(5, 11, 20, 0.8);
@@ -112,12 +84,7 @@
             font-size: 1rem;
             outline: none;
         }
-
-        input:focus, select:focus {
-            border-color: var(--neon-blue);
-            box-shadow: var(--neon-glow);
-        }
-
+        input:focus, select:focus { border-color: var(--neon-blue); box-shadow: var(--neon-glow); }
         .file-upload {
             border: 2px dashed rgba(0, 240, 255, 0.4);
             padding: 12px;
@@ -126,7 +93,6 @@
             cursor: pointer;
             background: rgba(0, 240, 255, 0.05);
         }
-
         .checkbox-group {
             display: flex;
             align-items: center;
@@ -135,13 +101,7 @@
             font-size: 0.85rem;
             color: var(--text-muted);
         }
-
-        .checkbox-group input {
-            accent-color: var(--neon-blue);
-            width: 16px;
-            height: 16px;
-        }
-
+        .checkbox-group input { accent-color: var(--neon-blue); width: 16px; height: 16px; }
         button.btn-submit {
             width: 100%;
             padding: 14px;
@@ -155,13 +115,7 @@
             box-shadow: var(--neon-glow);
             margin-top: 10px;
         }
-
-        #fileName {
-            margin-top: 4px;
-            font-size: 0.8rem;
-            color: var(--neon-blue);
-        }
-
+        #fileName { margin-top: 4px; font-size: 0.8rem; color: var(--neon-blue); }
         .result-box {
             margin-top: 20px;
             background: rgba(0, 240, 255, 0.05);
@@ -169,12 +123,19 @@
             padding: 15px;
             border-radius: 10px;
             display: none;
-        }
-
-        .seating-map {
             text-align: center;
         }
-
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
         .map-placeholder {
             width: 100%;
             height: 250px;
@@ -186,20 +147,13 @@
             align-items: center;
             background: rgba(0, 240, 255, 0.03);
             color: var(--text-muted);
-            margin-bottom: 15px;
             cursor: pointer;
-        }
-
-        .map-placeholder:hover {
-            border-color: var(--neon-blue);
-            background: rgba(0, 240, 255, 0.07);
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- ปุ่มสลับหน้าเว็บ (เพิ่มแท็บผังที่นั่ง) -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab('book')">จองบัตร</button>
             <button class="tab-btn" onclick="switchTab('map')">ผังที่นั่ง</button>
@@ -250,10 +204,10 @@
             </form>
         </div>
 
-        <!-- หน้าผังที่นั่งคอนเสิร์ต -->
+        <!-- หน้าผังที่นั่ง -->
         <div id="mapTab" class="tab-content">
             <h2>🗺️ ผังโซนและที่นั่งคอนเสิร์ต</h2>
-            <div class="seating-map">
+            <div style="text-align: center;">
                 <div class="map-placeholder" onclick="document.getElementById('mapUpload').click()">
                     <span style="font-size: 2rem; margin-bottom: 5px;">🖼️</span>
                     <span>คลิกเพื่ออัปโหลดรูปผังที่นั่ง</span>
@@ -262,26 +216,23 @@
                 <div id="mapPreviewContainer" style="display:none; margin-top:10px;">
                     <img id="mapImage" src="" alt="Seating Map" style="width:100%; border-radius:10px; border:1px solid rgba(0,240,255,0.3);">
                 </div>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">
-                    💡 คุณสามารถกดอัปโหลดรูปผังโซนคอนเสิร์ตของคุณมาแสดงตรงนี้เพื่อให้ลูกค้าดูประกอบการจองได้ครับ
-                </p>
             </div>
         </div>
 
-        <!-- หน้าตรวจสอบตั๋ว (ค้นหาด้วยชื่อ-นามสกุล) -->
+        <!-- หน้าตรวจสอบตั๋วและแสดง QR Code -->
         <div id="searchTab" class="tab-content">
-            <h2>🔍 ตรวจสอบข้อมูลการจอง</h2>
+            <h2>🔍 ตรวจสอบตั๋วและ QR Code</h2>
             <div class="form-group">
                 <label>กรอกชื่อ - นามสกุลของคุณ</label>
                 <input type="text" id="searchName" placeholder="ระบุชื่อที่ใช้จอง">
             </div>
-            <button type="button" class="btn-submit" onclick="searchTicket()">ค้นหาข้อมูล</button>
+            <button type="button" class="btn-submit" onclick="searchTicket()">ค้นหาข้อมูลตั๋ว</button>
             
             <div id="searchResult" class="result-box">
                 <p><strong>ชื่อ:</strong> <span id="resName"></span></p>
                 <p><strong>โต๊ะ:</strong> <span id="resTable"></span></p>
-                <p style="margin-top: 10px;"><strong>รายการตั๋ว:</strong></p>
-                <ul id="resTickets" style="padding-left: 20px; color: var(--neon-blue);"></ul>
+                <p style="margin-top: 10px; color: var(--neon-blue);"><strong>🎫 QR Code ตั๋วของคุณ:</strong></p>
+                <div id="qrcode"></div>
             </div>
         </div>
     </div>
@@ -289,17 +240,34 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymait7AFNpIbBSuulJ8wMjzdf-KeAHEveN5IMiCNhvoDDtpEnETjNZttIW5xnfmavN5Q/exec"; // นำ Web App URL มาใส่ตรงนี้
 
-        const tableOptions = {
+        const allTables = {
             "ZONE VIP": ["VIP1", "VIP2", "VIP3", "VIP4"],
             "ZONE A": ["A1", "A2", "A3", "A4", "A5"],
             "ZONE B": ["B1", "B2", "B3", "B4", "B5"],
             "ZONE C-D": ["C1", "C2", "D1", "D2"]
         };
 
+        let bookedTablesList = [];
+
+        window.onload = async function() {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    redirect: "follow",
+                    body: JSON.stringify({ action: "getBookedTables" })
+                });
+                const result = await response.json();
+                if (result.status === "success") {
+                    bookedTablesList = result.bookedTables;
+                }
+            } catch (err) {
+                console.log("ไม่สามารถโหลดสถานะโต๊ะได้");
+            }
+        };
+
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
             if(tab === 'book') {
                 document.querySelectorAll('.tab-btn')[0].classList.add('active');
                 document.getElementById('bookTab').classList.add('active');
@@ -313,16 +281,23 @@
         }
 
         function updateTables() {
-            const zoneSelect = document.getElementById("zone");
+            const zoneSelect = document.getElementById("zone").value;
             const tableSelect = document.getElementById("tableNo");
-            const selectedZone = zoneSelect.value;
             tableSelect.innerHTML = '<option value="">-- เลือกหมายเลขโต๊ะ --</option>';
-            if (selectedZone && tableOptions[selectedZone]) {
-                tableOptions[selectedZone].forEach(table => {
+
+            if (zoneSelect && allTables[zoneSelect]) {
+                allTables[zoneSelect].forEach(table => {
+                    const isBooked = bookedTablesList.some(b => b.includes("(" + table + ")"));
                     let opt = document.createElement("option");
                     opt.value = table;
-                    opt.textContent = "โต๊ะ " + table;
-                    tableSelect.appendChild(opt);
+                    if (!isBooked) {
+                        opt.textContent = "โต๊ะ " + table + " (ว่าง)";
+                        tableSelect.appendChild(opt);
+                    } else {
+                        opt.textContent = "โต๊ะ " + table + " (ถูกจองแล้ว)";
+                        opt.disabled = true;
+                        tableSelect.appendChild(opt);
+                    }
                 });
             }
         }
@@ -377,22 +352,21 @@
 
             const payload = {
                 action: "bookTicket",
-                bookingId: "B-" + Math.floor(1000 + Math.random() * 9000),
+                bookingId: "TICKET-" + name + "-" + tableNo,
                 name: name,
                 phone: phone,
                 tableNo: zone + " (" + tableNo + ")",
-                tickets: ["ตั๋วใบที่ 1", "ตั๋วใบที่ 2", "ตั๋วใบที่ 3", "ตั๋วใบที่ 4"],
+                tickets: ["บัตรคอนเสิร์ตโซน " + zone + " โต๊ะ " + tableNo],
                 slipImage: slipBase64
             };
 
             alert("กำลังส่งข้อมูล...");
             try {
-                const response = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+                const response = await fetch(SCRIPT_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
                 const result = await response.json();
                 if (result.status === "success") {
                     alert("🎉 จองบัตรสำเร็จเรียบร้อย!");
-                    document.getElementById("bookingForm").reset();
-                    document.getElementById("fileName").textContent = "ยังไม่ได้เลือกไฟล์";
+                    location.reload();
                 } else {
                     alert("❌ เกิดข้อผิดพลาด: " + result.message);
                 }
@@ -421,15 +395,15 @@
                 if (result.status === "found") {
                     document.getElementById("resName").textContent = result.name;
                     document.getElementById("resTable").textContent = result.tableNo;
-                    const ticketList = document.getElementById("resTickets");
-                    ticketList.innerHTML = "";
-                    result.tickets.forEach(t => {
-                        if(t) {
-                            let li = document.createElement("li");
-                            li.textContent = t;
-                            ticketList.appendChild(li);
-                        }
+                    
+                    // สร้าง QR Code จากชื่อและโต๊ะที่จอง
+                    document.getElementById("qrcode").innerHTML = "";
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: "TICKET: " + result.name + " | Table: " + result.tableNo,
+                        width: 128,
+                        height: 128
                     });
+
                     resBox.style.display = "block";
                 } else {
                     resBox.style.display = "none";
