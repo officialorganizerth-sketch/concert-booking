@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบสแกนตั๋วหน้างานคอนเสิร์ต (Anti-Duplication)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #050b14;
+            --card-bg: rgba(10, 15, 29, 0.9);
+            --neon-blue: #00f0ff;
+            --neon-green: #00ff66;
+            --neon-red: #ff3333;
+            --neon-glow: 0 0 15px rgba(0, 240, 255, 0.4);
+            --text-color: #ffffff;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 10%, #0c1b33 0%, var(--bg-color) 80%);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            box-shadow: var(--neon-glow);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+        }
+        h2 {
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+            font-size: 1.3rem;
+        }
+        #reader {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 240, 255, 0.4);
+            margin-bottom: 20px;
+            background: #000;
+        }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(5, 11, 20, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+        }
+        button.btn-action {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00f0ff, #0077ff);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: var(--neon-glow);
+            margin-top: 5px;
+        }
+        .result-box {
+            margin-top: 20px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: left;
+            display: none;
+        }
+        .result-box.success { border-color: var(--neon-green); background: rgba(0, 255, 102, 0.08); }
+        .result-box.error { border-color: var(--neon-red); background: rgba(255, 51, 51, 0.08); }
+        .result-box p { margin-bottom: 8px; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📷 สแกนตั๋วหน้างาน (ป้องการสแกนซ้ำ)</h2>
+        
+        <div id="reader"></div>
+
+        <div style="margin: 15px 0; color: var(--text-muted); font-size: 0.85rem;">หรือพิมพ์รหัสตั๋วเพื่อเช็คอิน</div>
+
+        <div class="form-group">
+            <input type="text" id="manualInput" placeholder="พิมพ์รหัสตั๋ว เช่น TICKET-XXXX-1">
+        </div>
+        <button type="button" class="btn-action" onclick="checkTicketManual()">ยืนยันเช็คอินตั๋ว</button>
+
+        <div id="scanResult" class="result-box">
+            <p style="text-align: center; font-weight: 600; font-size: 1.1rem;" id="resStatus">สถานะ</p>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0;">
+            <p><strong>ชื่อผู้จอง:</strong> <span id="resName"></span></p>
+            <p><strong>รายละเอียดโซน/โต๊ะ:</strong> <span id="resTable"></span></p>
+            <p><strong>รหัสตั๋วใบนี้:</strong> <span id="resTicketCode"></span></p>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymait7AFNpIbBSuulJ8wMjzdf-KeAHEveN5IMiCNhvoDDtpEnETjNZttIW5xnfmavN5Q/exec"; // นำ Web App URL มาใส่ตรงนี้
+
+        let isScanning = true;
+
+        const html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                if (isScanning) {
+                    isScanning = false; // ป้องกันการยิงซ้ำรัวๆ ขณะกล้องสแกนโดน
+                    processCheckIn(decodedText);
+                    setTimeout(() => { isScanning = true; }, 3000); // หน่วงเวลา 3 วินาทีก่อนสแกนใบถัดไป
+                }
+            },
+            (errorMessage) => {}
+        ).catch(err => {
+            console.log("ไม่สามารถเปิดกล้องได้: ", err);
+        });
+
+        function checkTicketManual() {
+            const query = document.getElementById("manualInput").value.trim();
+            if (!query) {
+                alert("กรุณากรอกรหัสตั๋วก่อนเช็คอิน");
+                return;
+            }
+            processCheckIn(query);
+        }
+
+        async function processCheckIn(rawText) {
+            let targetTicket = rawText;
+            // แยกดึงเฉพาะรหัสตั๋วจาก QR Code ที่รูปแบบ: TICKET: TICKET-XXXX-1 | Name: ...
+            if (rawText.indexOf("TICKET:") > -1) {
+                let parts = rawText.split("|");
+                for (let p of parts) {
+                    if (p.indexOf("TICKET:") > -1) {
+                        targetTicket = p.replace("TICKET:", "").trim();
+                    }
+                }
+            }
+
+            const resBox = document.getElementById("scanResult");
+            document.getElementById("resStatus").textContent = "⏳ กำลังตรวจสอบตั๋ว...";
+            resBox.className = "result-box";
+            resBox.style.display = "block";
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    redirect: "follow",
+                    body: JSON.stringify({ action: "checkIn", ticketCode: targetTicket })
+                });
+                const result = await response.json();
+                
+                document.getElementById("resName").textContent = result.name || "-";
+                document.getElementById("resTable").textContent = result.tableNo || "-";
+                document.getElementById("resTicketCode").textContent = result.ticketCode || targetTicket;
+
+                if (result.status === "success") {
+                    document.getElementById("resStatus-text")
+                    document.getElementById("resStatus").textContent = result.message;
+                    resBox.className = "result-box success";
+                } else if (result.status === "already_used") {
+                    document.getElementById("resStatus").textContent = result.message;
+                    resBox.className = "result-box error";
+                } else {
+                    document.getElementById("resStatus").textContent = result.message;
+                    resBox.className = "result-box error";
+                }
+            } catch (err) {
+                document.getElementById("resStatus").textContent = "❌ เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์";
+                resBox.className = "result-box error";
+            }
+        }
+    </script>
+</body>
+</html>
