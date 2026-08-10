@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจองบัตรคอนเสิร์ต - Neon Blue</title>
+    <title>ระบบจองและตรวจสอบบัตรคอนเสิร์ต</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -41,24 +41,61 @@
             border: 1px solid rgba(0, 240, 255, 0.3);
             box-shadow: var(--neon-glow);
             border-radius: 20px;
-            padding: 30px;
+            padding: 25px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px 5px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: var(--neon-glow);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         h2 {
             text-align: center;
             color: var(--neon-blue);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: var(--text-muted);
             font-size: 0.9rem;
         }
@@ -74,7 +111,6 @@
             color: var(--text-color);
             font-size: 1rem;
             outline: none;
-            transition: all 0.3s ease;
         }
 
         input:focus, select:focus {
@@ -84,33 +120,26 @@
 
         .file-upload {
             border: 2px dashed rgba(0, 240, 255, 0.4);
-            padding: 15px;
+            padding: 12px;
             border-radius: 10px;
             text-align: center;
             cursor: pointer;
-            transition: 0.3s;
             background: rgba(0, 240, 255, 0.05);
-        }
-
-        .file-upload:hover {
-            border-color: var(--neon-blue);
-            background: rgba(0, 240, 255, 0.1);
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
-            cursor: pointer;
+            margin-top: 8px;
             font-size: 0.85rem;
             color: var(--text-muted);
         }
 
         .checkbox-group input {
             accent-color: var(--neon-blue);
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
         }
 
         button.btn-submit {
@@ -124,92 +153,170 @@
             font-size: 1rem;
             cursor: pointer;
             box-shadow: var(--neon-glow);
-            transition: 0.3s;
             margin-top: 10px;
         }
 
-        button.btn-submit:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
         #fileName {
-            margin-top: 5px;
+            margin-top: 4px;
             font-size: 0.8rem;
             color: var(--neon-blue);
+        }
+
+        .result-box {
+            margin-top: 20px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .seating-map {
+            text-align: center;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 250px;
+            border: 2px dashed rgba(0, 240, 255, 0.4);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 240, 255, 0.03);
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .map-placeholder:hover {
+            border-color: var(--neon-blue);
+            background: rgba(0, 240, 255, 0.07);
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>✨ ระบบจองบัตรคอนเสิร์ต ✨</h2>
-        <form id="bookingForm" onsubmit="submitForm(event)">
-            
-            <div class="form-group">
-                <label>ชื่อ - นามสกุล</label>
-                <input type="text" id="name" required placeholder="กรอกชื่อของคุณ">
-            </div>
+        <!-- ปุ่มสลับหน้าเว็บ (เพิ่มแท็บผังที่นั่ง) -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('book')">จองบัตร</button>
+            <button class="tab-btn" onclick="switchTab('map')">ผังที่นั่ง</button>
+            <button class="tab-btn" onclick="switchTab('search')">ตรวจสอบตั๋ว</button>
+        </div>
 
-            <div class="form-group">
-                <label>เบอร์โทรศัพท์</label>
-                <input type="tel" id="phone" required placeholder="08xxxxxxxx">
-            </div>
-
-            <div class="form-group">
-                <label>เลือกโซนที่นั่ง</label>
-                <select id="zone" required onchange="updateTables()">
-                    <option value="">-- กรุณาเลือกโซน --</option>
-                    <option value="VVIP">VVIP</option>
-                    <option value="ZONE VIP">ZONE VIP</option>
-                    <option value="ZONE A">ZONE A</option>
-                    <option value="ZONE B">ZONE B</option>
-                    <option value="ZONE C-D">ZONE C-D</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>เลือกหมายเลขโต๊ะ</label>
-                <select id="tableNo" required>
-                    <option value="">-- กรุณาเลือกโซนก่อน --</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>อัปโหลดสลิปโอนเงิน</label>
-                <div class="file-upload" onclick="document.getElementById('slipFile').click()">
-                    <span>📎 คลิกเพื่อเลือกรูปสลิป</span>
-                    <input type="file" id="slipFile" accept="image/*" style="display:none" onchange="showFileName()">
-                    <div id="fileName">ยังไม่ได้เลือกไฟล์</div>
+        <!-- หน้าจองบัตร -->
+        <div id="bookTab" class="tab-content active">
+            <h2>✨ ฟอร์มจองบัตรคอนเสิร์ต ✨</h2>
+            <form id="bookingForm" onsubmit="submitForm(event)">
+                <div class="form-group">
+                    <label>ชื่อ - นามสกุล</label>
+                    <input type="text" id="name" required placeholder="กรอกชื่อของคุณ">
                 </div>
-                
-                <label class="checkbox-group">
-                    <input type="checkbox" id="lineSlip" onchange="toggleSlipRequirement()">
-                    โอนเงินแล้ว แต่ขอส่งสลิปทาง LINE แทน (กรณีแนบไฟล์ไม่เป็น)
-                </label>
-            </div>
+                <div class="form-group">
+                    <label>เบอร์โทรศัพท์</label>
+                    <input type="tel" id="phone" required placeholder="08xxxxxxxx">
+                </div>
+                <div class="form-group">
+                    <label>เลือกโซนที่นั่งและราคา</label>
+                    <select id="zone" required onchange="updateTables()">
+                        <option value="">-- กรุณาเลือกโซน --</option>
+                        <option value="ZONE VIP">ZONE VIP (3,500 บาท)</option>
+                        <option value="ZONE A">ZONE A (2,500 บาท)</option>
+                        <option value="ZONE B">ZONE B (1,800 บาท)</option>
+                        <option value="ZONE C-D">ZONE C-D (1,200 บาท)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>เลือกหมายเลขโต๊ะ</label>
+                    <select id="tableNo" required>
+                        <option value="">-- กรุณาเลือกโซนก่อน --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>อัปโหลดสลิปโอนเงิน</label>
+                    <div class="file-upload" onclick="document.getElementById('slipFile').click()">
+                        <span>📎 คลิกเลือกไฟล์สลิป</span>
+                        <input type="file" id="slipFile" accept="image/*" style="display:none" onchange="showFileName()">
+                        <div id="fileName">ยังไม่ได้เลือกไฟล์</div>
+                    </div>
+                    <label class="checkbox-group">
+                        <input type="checkbox" id="lineSlip" onchange="toggleSlipRequirement()">
+                        โอนเงินแล้ว แต่ขอส่งสลิปทาง LINE แทน
+                    </label>
+                </div>
+                <button type="submit" class="btn-submit">ยืนยันการจอง</button>
+            </form>
+        </div>
 
-            <button type="submit" class="btn-submit">ยืนยันการจองบัตร</button>
-        </form>
+        <!-- หน้าผังที่นั่งคอนเสิร์ต -->
+        <div id="mapTab" class="tab-content">
+            <h2>🗺️ ผังโซนและที่นั่งคอนเสิร์ต</h2>
+            <div class="seating-map">
+                <div class="map-placeholder" onclick="document.getElementById('mapUpload').click()">
+                    <span style="font-size: 2rem; margin-bottom: 5px;">🖼️</span>
+                    <span>คลิกเพื่ออัปโหลดรูปผังที่นั่ง</span>
+                    <input type="file" id="mapUpload" accept="image/*" style="display:none" onchange="previewMap(event)">
+                </div>
+                <div id="mapPreviewContainer" style="display:none; margin-top:10px;">
+                    <img id="mapImage" src="" alt="Seating Map" style="width:100%; border-radius:10px; border:1px solid rgba(0,240,255,0.3);">
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 10px;">
+                    💡 คุณสามารถกดอัปโหลดรูปผังโซนคอนเสิร์ตของคุณมาแสดงตรงนี้เพื่อให้ลูกค้าดูประกอบการจองได้ครับ
+                </p>
+            </div>
+        </div>
+
+        <!-- หน้าตรวจสอบตั๋ว (ค้นหาด้วยชื่อ-นามสกุล) -->
+        <div id="searchTab" class="tab-content">
+            <h2>🔍 ตรวจสอบข้อมูลการจอง</h2>
+            <div class="form-group">
+                <label>กรอกชื่อ - นามสกุลของคุณ</label>
+                <input type="text" id="searchName" placeholder="ระบุชื่อที่ใช้จอง">
+            </div>
+            <button type="button" class="btn-submit" onclick="searchTicket()">ค้นหาข้อมูล</button>
+            
+            <div id="searchResult" class="result-box">
+                <p><strong>ชื่อ:</strong> <span id="resName"></span></p>
+                <p><strong>โต๊ะ:</strong> <span id="resTable"></span></p>
+                <p style="margin-top: 10px;"><strong>รายการตั๋ว:</strong></p>
+                <ul id="resTickets" style="padding-left: 20px; color: var(--neon-blue);"></ul>
+            </div>
+        </div>
     </div>
 
     <script>
-        // กำหนดรายการโต๊ะตามโซนที่เลือก
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymait7AFNpIbBSuulJ8wMjzdf-KeAHEveN5IMiCNhvoDDtpEnETjNZttIW5xnfmavN5Q/exec"; // นำ Web App URL มาใส่ตรงนี้
+
         const tableOptions = {
-            "VVIP": ["V1", "V2", "V3"],
             "ZONE VIP": ["VIP1", "VIP2", "VIP3", "VIP4"],
             "ZONE A": ["A1", "A2", "A3", "A4", "A5"],
             "ZONE B": ["B1", "B2", "B3", "B4", "B5"],
             "ZONE C-D": ["C1", "C2", "D1", "D2"]
         };
 
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if(tab === 'book') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('bookTab').classList.add('active');
+            } else if(tab === 'map') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('mapTab').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                document.getElementById('searchTab').classList.add('active');
+            }
+        }
+
         function updateTables() {
             const zoneSelect = document.getElementById("zone");
             const tableSelect = document.getElementById("tableNo");
             const selectedZone = zoneSelect.value;
-
             tableSelect.innerHTML = '<option value="">-- เลือกหมายเลขโต๊ะ --</option>';
-
             if (selectedZone && tableOptions[selectedZone]) {
                 tableOptions[selectedZone].forEach(table => {
                     let opt = document.createElement("option");
@@ -222,28 +329,35 @@
 
         function showFileName() {
             const fileInput = document.getElementById("slipFile");
-            const fileNameDiv = document.getElementById("fileName");
             if (fileInput.files.length > 0) {
-                fileNameDiv.textContent = "📄 " + fileInput.files[0].name;
+                document.getElementById("fileName").textContent = "📄 " + fileInput.files[0].name;
             }
         }
 
         function toggleSlipRequirement() {
             const isLine = document.getElementById("lineSlip").checked;
-            const fileInput = document.getElementById("slipFile");
             if (isLine) {
-                fileInput.value = "";
+                document.getElementById("slipFile").value = "";
                 document.getElementById("fileName").textContent = "ส่งสลิปผ่าน LINE แล้ว";
             } else {
                 document.getElementById("fileName").textContent = "ยังไม่ได้เลือกไฟล์";
             }
         }
 
+        function previewMap(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('mapImage').src = e.target.result;
+                    document.getElementById('mapPreviewContainer').style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
         async function submitForm(e) {
             e.preventDefault();
-            
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbymait7AFNpIbBSuulJ8wMjzdf-KeAHEveN5IMiCNhvoDDtpEnETjNZttIW5xnfmavN5Q/exec"; // นำ Web App URL จาก Apps Script มาวางแทนที่ข้อความนี้
-
             const name = document.getElementById("name").value;
             const phone = document.getElementById("phone").value;
             const zone = document.getElementById("zone").value;
@@ -258,8 +372,7 @@
 
             let slipBase64 = "";
             if (fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                slipBase64 = await toBase64(file);
+                slipBase64 = await toBase64(fileInput.files[0]);
             }
 
             const payload = {
@@ -273,12 +386,8 @@
             };
 
             alert("กำลังส่งข้อมูล...");
-
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
+                const response = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
                 const result = await response.json();
                 if (result.status === "success") {
                     alert("🎉 จองบัตรสำเร็จเรียบร้อย!");
@@ -289,6 +398,44 @@
                 }
             } catch (err) {
                 alert("❌ ส่งข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง");
+            }
+        }
+
+        async function searchTicket() {
+            const name = document.getElementById("searchName").value.trim();
+            if (!name) {
+                alert("กรุณากรอกชื่อ-นามสกุลเพื่อค้นหา");
+                return;
+            }
+
+            alert("กำลังค้นหาข้อมูล...");
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "search", name: name })
+                });
+                const result = await response.json();
+                
+                const resBox = document.getElementById("searchResult");
+                if (result.status === "found") {
+                    document.getElementById("resName").textContent = result.name;
+                    document.getElementById("resTable").textContent = result.tableNo;
+                    const ticketList = document.getElementById("resTickets");
+                    ticketList.innerHTML = "";
+                    result.tickets.forEach(t => {
+                        if(t) {
+                            let li = document.createElement("li");
+                            li.textContent = t;
+                            ticketList.appendChild(li);
+                        }
+                    });
+                    resBox.style.display = "block";
+                } else {
+                    resBox.style.display = "none";
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ");
             }
         }
 
