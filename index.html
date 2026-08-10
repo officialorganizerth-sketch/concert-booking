@@ -432,7 +432,6 @@
                 tickets: ticketsArr
             };
 
-            alert("กำลังส่งข้อมูล...");
             try {
                 const response = await fetch(SCRIPT_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
                 const result = await response.json();
