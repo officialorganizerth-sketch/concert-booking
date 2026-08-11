@@ -583,18 +583,16 @@ function switchTab(tabId) {
             });
             event.currentTarget.classList.add('active');
         }
-        // --- โค้ดระบบตัวแทนจำหน่าย ---
-    function getQueryParam(name) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
-    }
+        <script>
+function getQueryParam(name) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name);
+}
 
-    // เปลี่ยน 'agent' ตรงนี้ ให้ตรงกับชื่อที่คุณอยากใช้ในลิงก์
-    const agentCode = getQueryParam('agent'); 
-    
-    if (agentCode) {
-        localStorage.setItem('agent_code', agentCode);
-    }
+const agentCode = getQueryParam('agent');
+if (agentCode) {
+  localStorage.setItem('agent_code', agentCode);
+}
     </script>
 </body>
 </html>
