@@ -486,66 +486,59 @@ if (slipFile && slipFile.files.length > 0) {
         }
 
         async function searchTicket() {
-            const name = document.getElementById("searchName").value.trim();
-            if (!name) {
-                alert("กรุณาเบอร์โทรศัพทืเพื่อค้นหา");
-                return;
-            }
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: "POST",
-                    redirect: "follow",
-                    body: JSON.stringify({ action: "search", name: name })
-                });
-                const result = await response.json();
-                
-               const resBox = document.getElementById("searchResult");
+    const searchInput = document.getElementById("searchInput").value.trim();
+    const resBox = document.getElementById("searchResult");
     const qrContainer = document.getElementById("searchQrContainer");
-    qrContainer.innerHTML = ""; // ล้างค่าเก่าออกก่อน
+    
+    if (!searchInput) {
+        alert("กรุณากรอกเบอร์โทรศัพท์หรือชื่อผู้จอง");
+        return;
+    }
 
-    if (result.status === "success" && result.bookings) {
-        let allHtml = "";
-        
-        // วนลูปทุกการจองที่ค้นหาเจอ (รองรับกรณีจองหลายโต๊ะ/หลายรอบ)
-        result.bookings.forEach((booking, bIndex) => {
-            allHtml += `<div style="border-top: 1px dashed var(--neon-blue); margin-top: 15px; padding-top: 10px;">`;
-            allHtml += `<p style="margin: 5px 0;"><strong>รายการที่ ${bIndex + 1} -> ชื่อ:</strong> ${booking.name} | <strong>โต๊ะ:</strong> ${booking.tableNo}</p>`;
-            
-         let ticketsHtml = "";
-            booking.tickets.forEach((tCode, index) => {
-                if (tCode && tCode.trim() !== "") {
-                    const qrText = encodeURIComponent("TICKET: " + tCode + " | Name: " + booking.name + " | Table: " + booking.tableNo);
-                    const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=" + qrText;
+    try {
+        qrContainer.innerHTML = "กำลังค้นหาข้อมูล...";
+        resBox.style.display = "block";
 
-                    ticketsHtml += `
-                        <div class="qr-item" style="display: inline-block; margin: 6px; text-align: center;">
-                            <p style="font-size: 0.85rem; color: var(--neon-blue); margin: 2px 0;">บัตรใบที่ ${index + 1}</p>
-                            <p style="font-size: 0.9rem; margin: 2px 0;"><b>${tCode}</b></p>
-                            <img src="${qrUrl}" alt="QR Ticket" style="width: 100px; height: 100px;">
-                        </div>`;
-                }
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzQ73s30V3kY8M13cWJ3lQZ8Q9hL8pQ3Q8p3Q8p3Q8p3Q8p3Q8p3Q8p3/exec?phone=" + encodeURIComponent(searchInput));
+        const result = await response.json();
+
+        if (result.status === "success" && result.bookings && result.bookings.length > 0) {
+            let allHtml = "";
+
+            result.bookings.forEach((booking, bIndex) => {
+                allHtml += `<div style="border-top: 1px dashed var(--neon-blue); margin-top: 15px; padding-top: 10px;">`;
+                allHtml += `<p style="margin: 5px 0;"><strong>รายการที่ ${bIndex + 1} -> ชื่อ:</strong> ${booking.name} | <strong>โต๊ะ:</strong> ${booking.tableNo}</p>`;
+
+                let ticketsHtml = "";
+                booking.tickets.forEach((tCode, index) => {
+                    if (tCode && tCode.trim() !== "") {
+                        const qrText = encodeURIComponent("TICKET: " + tCode + " | Name: " + booking.name + " | Table: " + booking.tableNo);
+                        const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=" + qrText;
+
+                        ticketsHtml += `
+                            <div class="qr-item" style="display: inline-block; margin: 6px; text-align: center;">
+                                <p style="font-size: 0.85rem; color: var(--neon-blue); margin: 2px 0;">บัตรใบที่ ${index + 1}</p>
+                                <p style="font-size: 0.9rem; margin: 2px 0;"><b>${tCode}</b></p>
+                                <img src="${qrUrl}" alt="QR Ticket" style="width: 100px; height: 100px;">
+                            </div>`;
+                    }
+                });
+
+                allHtml += `<div style="margin: 10px 0;">${ticketsHtml}</div></div>`;
             });
 
-            allHtml += `<div style="margin: 10px 0;">${ticketsHtml}</div></div>`;
-        });
-
-      qrContainer.innerHTML = allHtml;
-        resBox.style.display = "block";
-    } else {
-        alert("ไม่พบข้อมูลตั๋วนี้");
+            qrContainer.innerHTML = allHtml;
+            resBox.style.display = "block";
+        } else {
+            qrContainer.innerHTML = "";
+            alert("ไม่พบข้อมูลตั๋วนี้");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ");
     }
-} catch (err) {
-    console.error(err);
-    alert("❌ เกิดข้อผิดพลาดในการเชื่อมต่อ");
 }
-        document.querySelector('button[onclick="searchTicket()"]').addEventListener('click', function() {
-    console.log("ปุ่มถูกกดแล้ว!");
-            
-});
-} // ปิดปีกกาของฟังก์ชัน searchTicket ตรงนี้
 
-// แล้วค่อยวางฟังก์ชัน switchTab ไว้ข้างนอกสุดแบบนี้
 function switchTab(tabId) {
     const contents = document.querySelectorAll('.tab-content');
     contents.forEach(el => {
@@ -565,7 +558,6 @@ function switchTab(tabId) {
     });
     event.currentTarget.classList.add('active');
 }
-
         // เอาฟังก์ชัน switchTab มาวางไว้ตรงนี้
         function switchTab(tabId) {
             const contents = document.querySelectorAll('.tab-content');
