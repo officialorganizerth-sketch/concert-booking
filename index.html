@@ -466,7 +466,7 @@ if (slipFile && slipFile.files.length > 0) {
 }
 
             try {
-                const response = await fetch(SCRIPT_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
+                const response = await fetch(SCRIPT_URL, { method: "POST",body: JSON.stringify(payload) });
                 const result = await response.json();
                 if (result.status === "success") {
                     document.getElementById("bookingForm").style.display = "none";
