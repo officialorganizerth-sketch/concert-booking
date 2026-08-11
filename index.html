@@ -332,36 +332,41 @@
             }
         }
 
-      function updateSelectionType() {
-    const zoneSelect = document.getElementById("zone").value;
-    const dynamicFieldGroup = document.getElementById("dynamicFieldGroup");
-    
-    dynamicFieldGroup.innerHTML = '';
-    let newControl = '';
+        function updateSelectionType() {
+            const zoneSelect = document.getElementById("zone").value;
+            const dynamicLabel = document.getElementById("dynamicLabel");
+            const dynamicFieldGroup = document.getElementById("dynamicFieldGroup");
 
-    if (zoneSelect === "โซนยืน") {
-        cdTicketCount = 1; 
-        newControl = `<label id="dynamicLabel">เลือกจำนวนบัตรโซนยืน</label>` +
-                     `<div class="counter-box">` +
-                     `<button type="button" class="counter-btn" onclick="changeCount(-1)">-</button>` +
-                     `<span id="ticketCountDisplay">1 ใบ</span>` +
-                     `<button type="button" class="counter-btn" onclick="changeCount(1)">+</button>` +
-                     `</div>`;
-    } else {
-        newControl = `<label id="dynamicLabel">เลือกหมายเลขโต๊ะ</label>` +
-                     `<select id="tableNo" required>` +
-                     `<option value="">-- กรุณาเลือกโต๊ะ --</option>`;
-        
-        if (zoneSelect && tableOptions[zoneSelect]) {
-            tableOptions[zoneSelect].forEach(table => {
-                newControl += `<option value="${table}">โต๊ะ ${table}</option>`;
-            });
+            dynamicFieldGroup.innerHTML = '';
+            let newControl = '';
+
+            if (zoneSelect === "โซนยืน") {
+                cdTicketCount = 1; // รีเซ็ตเป็น 1 ใบเมื่อเปลี่ยนมาเลือกโซนนี้
+                newControl = `<label id="dynamicLabel">เลือกจำนวนบัตรโซนยืน</label>
+                              <div class="counter-box">
+                                  <button type="button" class="counter-btn" onclick="changeCount(-1)">-</button>
+                                  <span id="ticketCountDisplay">1 ใบ</span>
+                                  <button type="button" class="counter-btn" onclick="changeCount(1)">+</button>
+                              </div>`;
+            } else {
+                newControl = `<label id="dynamicLabel">เลือกหมายเลขโต๊ะ</label>
+                              <select id="tableNo" required>
+                                  <option value="">-- กรุณาเลือกโต๊ะ --</option>
+                              </select>`;
+            }
+            dynamicFieldGroup.innerHTML = newControl;
+
+            if (zoneSelect && zoneSelect !== "โซนยืน" && tableOptions[zoneSelect]) {
+                const tableSelect = document.getElementById("tableNo");
+                tableOptions[zoneSelect].forEach(table => {
+                    let opt = document.createElement("option");
+                    opt.value = table;
+                    opt.textContent = "โต๊ะ " + table;
+                    tableSelect.appendChild(opt);
+                });
+            }
         }
-        newControl += `</select>`;
-    }
-    
-    dynamicFieldGroup.innerHTML = newControl;
-}
+
         function changeCount(amount) {
             cdTicketCount += amount;
             if (cdTicketCount < 1) cdTicketCount = 1; // น้อยสุด 1 ใบ
@@ -578,16 +583,18 @@ function switchTab(tabId) {
             });
             event.currentTarget.classList.add('active');
         }
-        <script>
-function getQueryParam(name) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(name);
-}
+        // --- โค้ดระบบตัวแทนจำหน่าย ---
+    function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
 
-const agentCode = getQueryParam('agent');
-if (agentCode) {
-  localStorage.setItem('agent_code', agentCode);
-}
+    // เปลี่ยน 'agent' ตรงนี้ ให้ตรงกับชื่อที่คุณอยากใช้ในลิงก์
+    const agentCode = getQueryParam('agent'); 
+    
+    if (agentCode) {
+        localStorage.setItem('agent_code', agentCode);
+    }
     </script>
 </body>
 </html>
