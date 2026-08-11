@@ -334,30 +334,25 @@
 
         function updateSelectionType() {
             const zoneSelect = document.getElementById("zone").value;
+            const dynamicLabel = document.getElementById("dynamicLabel");
             const dynamicFieldGroup = document.getElementById("dynamicFieldGroup");
 
+            dynamicFieldGroup.innerHTML = '';
+            let newControl = '';
+
             if (zoneSelect === "โซนยืน") {
-                cdTicketCount = 1; 
-                dynamicFieldGroup.innerHTML = `
-                    <label id="dynamicLabel">เลือกจำนวนบัตรโซนยืน</label>
-                    <div class="counter-box">
-                        <button type="button" class="counter-btn" onclick="changeCount(-1)">-</button>
-                        <span id="ticketCountDisplay">1 ใบ</span>
-                        <button type="button" class="counter-btn" onclick="changeCount(1)">+</button>
-                    </div>`;
+                cdTicketCount = 1; // รีเซ็ตเป็น 1 ใบเมื่อเปลี่ยนมาเลือกโซนนี้
+                newControl = `<label id="dynamicLabel">เลือกจำนวนบัตรโซนยืน</label>
+                              <div class="counter-box">
+                                  <button type="button" class="counter-btn" onclick="changeCount(-1)">-</button>
+                                  <span id="ticketCountDisplay">1 ใบ</span>
+                                  <button type="button" class="counter-btn" onclick="changeCount(1)">+</button>
+                              </div>`;
             } else {
-                let optionsHTML = '<option value="">-- กรุณาเลือกโต๊ะ --</option>';
-                if (zoneSelect && tableOptions[zoneSelect]) {
-                    tableOptions[zoneSelect].forEach(table => {
-                        optionsHTML += `<option value="${table}">โต๊ะ ${table}</option>`;
-                    });
-                }
-                dynamicFieldGroup.innerHTML = `
-                    <label id="dynamicLabel">เลือกหมายเลขโต๊ะ</label>
-                    <select id="tableNo" required>
-                        ${optionsHTML}
-                    </select>`;
-            }
+                newControl = `<label id="dynamicLabel">เลือกหมายเลขโต๊ะ</label>
+                              <select id="tableNo" required>
+                                  <option value="">-- กรุณาเลือกโต๊ะ --</option>
+                              </select>`;
             }
             dynamicFieldGroup.innerHTML = newControl;
 
@@ -437,7 +432,7 @@
                     bookingId + "-4"
                 ];
             }
-const agentFromStorage = localStorage.getItem('agent_code') || "";
+
            const payload = {
     action: "bookTicket",
     bookingId: bookingId,
@@ -445,7 +440,6 @@ const agentFromStorage = localStorage.getItem('agent_code') || "";
     phone: phone,
     tableNo: selectionDetail,
     tickets: ticketsArr
-    agent: agentFromStorage
 };
 
 // เตรียมข้อมูลไฟล์
@@ -588,18 +582,6 @@ function switchTab(tabId) {
             });
             event.currentTarget.classList.add('active');
         }
-// --- ระบบตัวแทนจำหน่าย ---
-function getQueryParam(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
-}
-
-// เช็คและเก็บค่าตัวแทนลง LocalStorage
-const agentCode = getQueryParam('agent');
-if (agentCode) {
-    localStorage.setItem('agent_code', agentCode);
-    console.log("ตัวแทนที่ตรวจพบคือ: " + agentCode);
-}
     </script>
 </body>
 </html>
