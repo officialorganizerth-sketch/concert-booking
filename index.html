@@ -500,7 +500,7 @@ const searchInput = inputElement ? inputElement.value.trim() : "";
         qrContainer.innerHTML = "กำลังค้นหาข้อมูล...";
         resBox.style.display = "block";
 
-        const response = await fetch("https://script.google.com/macros/s/AKfycbzakBToQxQSjJgq_yKnpByF3gWbUPJV7xR4_w3vk2eqUpyjSVFU6HtieBkEn2iNSn8FEA/execphone=" + encodeURIComponent(searchInput));
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzakBToQxQSjJgq_yKnpByF3gWbUPJV7xR4_w3vk2eqUpyjSVFU6HtieBkEn2iNSn8FEA/exec?phone=" + encodeURIComponent(searchInput));
         const result = await response.json();
 
         if (result.status === "success" && result.bookings && result.bookings.length > 0) {
