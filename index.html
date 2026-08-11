@@ -432,7 +432,7 @@
                     bookingId + "-4"
                 ];
             }
-
+const agentFromStorage = localStorage.getItem('agent_code') || "";
            const payload = {
     action: "bookTicket",
     bookingId: bookingId,
@@ -440,6 +440,7 @@
     phone: phone,
     tableNo: selectionDetail,
     tickets: ticketsArr
+    agent: agentFromStorage
 };
 
 // เตรียมข้อมูลไฟล์
