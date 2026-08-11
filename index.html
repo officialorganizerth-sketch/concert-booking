@@ -438,7 +438,28 @@
                 tableNo: selectionDetail,
                 tickets: ticketsArr
             };
+// เตรียมข้อมูลไฟล์
+let slipFile = document.getElementById("input-slip"); // ตรวจสอบ ID ของช่องอัปโหลดไฟล์ใน HTML ของคุณอีกทีนะครับ
+let fileData = "";
+let fileName = "";
+let mimeType = "";
 
+if (slipFile && slipFile.files.length > 0) {
+    let file = slipFile.files[0];
+    let reader = await new Promise((resolve) => {
+        let r = new FileReader();
+        r.onload = (e) => resolve(e);
+        r.readAsDataURL(file);
+    });
+    fileData = reader.target.result;
+    fileName = file.name;
+    mimeType = file.type;
+}
+
+// รวมข้อมูลเข้ากับ payload (ให้แน่ใจว่าตัวแปร payload ของคุณมีบรรทัด lineSlipCheck อยู่แล้ว)
+payload.fileData = fileData;
+payload.fileName = fileName;
+payload.mimeType = mimeType;
             try {
                 const response = await fetch(SCRIPT_URL, { method: "POST", redirect: "follow", body: JSON.stringify(payload) });
                 const result = await response.json();
