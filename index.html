@@ -486,7 +486,8 @@ if (slipFile && slipFile.files.length > 0) {
         }
 
         async function searchTicket() {
-    const searchInput = document.getElementById("searchInput").value.trim();
+    const inputElement = document.getElementById("searchInput") || document.getElementById("searchName");
+const searchInput = inputElement ? inputElement.value.trim() : "";
     const resBox = document.getElementById("searchResult");
     const qrContainer = document.getElementById("searchQrContainer");
     
