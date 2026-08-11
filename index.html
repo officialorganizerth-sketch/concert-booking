@@ -459,6 +459,7 @@ if (slipFile && slipFile.files.length > 0) {
     payload.slipData = reader;
     payload.fileName = file.name;
     payload.mimeType = file.type;
+    payload.agent = localStorage.getItem('agent_code') || "";
 }
 
             try {
