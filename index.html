@@ -542,6 +542,27 @@ if (slipFile && slipFile.files.length > 0) {
         document.querySelector('button[onclick="searchTicket()"]').addEventListener('click', function() {
     console.log("ปุ่มถูกกดแล้ว!");
 });
+
+        // เอาฟังก์ชัน switchTab มาวางไว้ตรงนี้
+        function switchTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            });
+
+            const target = document.getElementById(tabId + 'Tab');
+            if (target) {
+                target.style.display = 'block';
+                target.classList.add('active');
+            }
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
     </script>
 </body>
 </html>
