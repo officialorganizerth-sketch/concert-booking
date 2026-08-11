@@ -433,14 +433,18 @@
                 ];
             }
 
-           const payload = {
-    action: "bookTicket",
-    bookingId: bookingId,
-    name: name,
-    phone: phone,
-    tableNo: selectionDetail,
-    tickets: ticketsArr
-};
+           // ดึงค่าตัวแทนที่เก็บไว้
+            const agentFromStorage = localStorage.getItem('agent_code') || "";
+
+            const payload = {
+                action: "bookTicket",
+                bookingId: bookingId,
+                name: name,
+                phone: phone,
+                tableNo: selectionDetail,
+                tickets: ticketsArr,
+                agent: agentFromStorage // <--- เพิ่มบรรทัดนี้เข้าไป เพื่อส่งรหัสตัวแทนไปลงช่อง L
+            };
 
 // เตรียมข้อมูลไฟล์
 let slipFile = document.getElementById("slipFile");
@@ -582,6 +586,11 @@ function switchTab(tabId) {
             });
             event.currentTarget.classList.add('active');
         }
+    const urlParams = new URLSearchParams(window.location.search);
+    const agentCode = urlParams.get('agent');
+    if (agentCode) {
+        localStorage.setItem('agent_code', agentCode);
+    }
     </script>
 </body>
 </html>
