@@ -500,25 +500,45 @@ if (slipFile && slipFile.files.length > 0) {
                 });
                 const result = await response.json();
                 
-                const resBox = document.getElementById("searchResult");
-                if (result.status === "success") {
-                    document.getElementById("resBookingId").textContent = result.bookingId;
-                    document.getElementById("resName").textContent = result.name;
-                    document.getElementById("resTable").textContent = result.tableNo;
-                    
-                    let qrHtml = "";
-                    result.tickets.forEach((tCode, index) => {
-                        if (tCode && tCode.trim() !== "") {
-                            const qrText = encodeURIComponent("TICKET: " + tCode + " | Name: " + result.name + " | Detail: " + result.tableNo);
-                            qrHtml += `<div class="qr-item">
-                                <p style="font-size:0.85rem; color:var(--neon-blue);">บัตรใบที่ ${index + 1}</p>
-                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${qrText}" alt="QR Ticket">
-                            </div>`;
-                        }
-                    });
-                    document.getElementById("searchQrContainer").innerHTML = qrHtml;
-                    resBox.style.display = "block";
-                } else {
+               const resBox = document.getElementById("searchResult");
+    const qrContainer = document.getElementById("searchQrContainer");
+    qrContainer.innerHTML = ""; // ล้างค่าเก่าออกก่อน
+
+    if (result.status === "success" && result.bookings) {
+        let allHtml = "";
+        
+        // วนลูปทุกการจองที่ค้นหาเจอ (รองรับกรณีจองหลายโต๊ะ/หลายรอบ)
+        result.bookings.forEach((booking, bIndex) => {
+            allHtml += `<div style="border-top: 1px dashed var(--neon-blue); margin-top: 15px; padding-top: 10px;">`;
+            allHtml += `<p style="margin: 5px 0;"><strong>รายการที่ ${bIndex + 1} -> ชื่อ:</strong> ${booking.name} | <strong>โต๊ะ:</strong> ${booking.tableNo}</p>`;
+            
+            let ticketsHtml = "";
+            booking.tickets.forEach((tCode, index) => {
+                if (tCode && tCode.trim() !== "") {
+                    let qrText = encodeURIComponent("TICKET: " + tCode + " | Name: " + booking.name + " | Table: " + booking.tableNo);
+                    let qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=" + qrText;
+
+                    ticketsHtml += `
+                        <div class="qr-item" style="display: inline-block; margin: 6px; text-align: center;">
+                            <p style="font-size: 0.85rem; color: var(--neon-blue); margin: 2px 0;">บัตรใบที่ ${index + 1}</p>
+                            <p style="font-size: 0.9rem; margin: 2px 0;"><b>${tCode}</b></p>
+                            <img src="${qrUrl}" alt="QR Code" style="width: 100px; height: 100px;">
+                        </div>
+                    `;
+                }
+            });
+            
+            allHtml += ticketsHtml;
+            allHtml += `</div>`;
+        });
+
+        qrContainer.innerHTML = allHtml;
+        resBox.style.display = "block";
+
+    } else if (result.status === "error") {
+        resBox.style.display = "none";
+        alert(result.message);
+    }
                     resBox.style.display = "none";
                     
                 }
