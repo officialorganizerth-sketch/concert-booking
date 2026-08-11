@@ -582,6 +582,18 @@ function switchTab(tabId) {
             });
             event.currentTarget.classList.add('active');
         }
+// --- ระบบตัวแทนจำหน่าย ---
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// เช็คและเก็บค่าตัวแทนลง LocalStorage
+const agentCode = getQueryParam('agent');
+if (agentCode) {
+    localStorage.setItem('agent_code', agentCode);
+    console.log("ตัวแทนที่ตรวจพบคือ: " + agentCode);
+}
     </script>
 </body>
 </html>
