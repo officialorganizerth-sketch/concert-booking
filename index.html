@@ -587,10 +587,13 @@ function switchTab(tabId) {
             event.currentTarget.classList.add('active');
         }
     const urlParams = new URLSearchParams(window.location.search);
-    const agentCode = urlParams.get('agent');
-    if (agentCode) {
-        localStorage.setItem('agent_code', agentCode);
-    }
+const agentCode = urlParams.get('agent');
+
+if (agentCode) {
+    localStorage.setItem('agent_code', agentCode);
+} else {
+    localStorage.removeItem('agent_code'); // ถ้าไม่มีชื่อตัวแทนในลิงก์ ให้ล้างค่าเก่าทิ้งทันที!
+}
     </script>
 </body>
 </html>
